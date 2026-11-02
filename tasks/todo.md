@@ -108,7 +108,7 @@
     - [x] `git push origin main`（提交 1）→ 验证 https://sharedcodes.com 与 https://www.sharedcodes.com 200。（2026-11-02 完成，四个域名证书齐全）
     - [x] 原地改名 Worker：Dashboard Settings → General，或 `PATCH /accounts/{id}/workers/workers/inboxshare` `{"name":"sharedcodes"}`；核对四个域名、ADMIN_TOKEN / WAITLIST_TO、cron、Builds 连接都在。（2026-11-02 站长在 Dashboard 完成，服务标签仍是 `cf:service=inboxshare`，域名、secret、部署历史都保留）
     - [x] 两个旧 zone（inboxshare.app、funcin.de）的 Email Routing 规则与 Catch-all 的「Send to a Worker」确认 / 改为 `sharedcodes`。（2026-11-02 用 API 改完：改名后规则里仍写着旧名 `inboxshare` / `emailshare`，共 5 条改指 `sharedcodes`）
-    - [ ] `git merge --ff-only feat/rename-shared-codes && git push`（提交 2）→ 验证 301、首页、管理页（令牌按 origin 存储，要重输一次）、分享页、名单通知来自 noreply@sharedcodes.com。
+    - [x] `git merge --ff-only feat/rename-shared-codes && git push`（提交 2）→ 验证 301、首页、管理页（令牌按 origin 存储，要重输一次）、分享页、名单通知来自 noreply@sharedcodes.com。（2026-11-02 04:56Z 部署：线上变量已是 sharedcodes.com；inboxshare.app / mail.funcin.de / www 的 GET 301、POST 308 到同路径并带 `max-age=3600`；新域名首页、robots、sitemap、og-image、admin 全 200，标题 / canonical / Logo 都是 Shared Codes。名单通知发信与管理页重输令牌待站长实际操作时确认）
     - [ ] GSC 在 inboxshare.app 属性做「网址更改」→ sharedcodes.com；提交新 sitemap。
     - [ ] 一周后把 `src/index.ts` 的 `max-age=3600` 提到 `86400`。
     - [ ] 注册商给 inboxshare.app、funcin.de 开自动续费：用户转发规则里写的是 `xxx@inboxshare.app` / `xxx@mail.funcin.de`，域名过期 = 这些用户的收件无声中断。
