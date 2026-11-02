@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { BRAND_A, BRAND_B } from '../brand';
 import { countLinks, createLink, deleteLink, listLinks, listMailboxes, revokeLink } from '../db';
 import { ADMIN_DICTS, renderPage, resolveLocale } from '../i18n';
 import adminPage from '../pages/admin.html';
@@ -30,7 +31,7 @@ export function registerAdminRoutes(app: App): void {
   app.get('/admin', (c) => {
     const selected = c.req.query('lang');
     const locale = selected === 'en' || selected === 'zh-CN' ? resolveLocale(selected) : resolveLocale(c.env.LOCALE);
-    return c.html(renderPage(adminPage, locale, ADMIN_DICTS[locale]));
+    return c.html(renderPage(adminPage, locale, { ...ADMIN_DICTS[locale], brandA: BRAND_A, brandB: BRAND_B }));
   });
 
   // 所有 /api/admin/* 都要 Bearer ADMIN_TOKEN；未配置 token 时整个管理接口关闭

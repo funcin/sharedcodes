@@ -1,14 +1,14 @@
-# InboxShare
+# Shared Codes
 
 **New device, new code. Your family gets it without asking you.**
 
-InboxShare is an open-source, self-hosted **shared verification inbox**. Forward the verification emails from your existing mailbox (Gmail, Outlook, iCloud Mail, anything that can forward) to an address on your own domain, and the people you authorize read the latest login code themselves through one read-only link.
+Shared Codes is an open-source, self-hosted **shared verification inbox**. Forward the verification emails from your existing mailbox (Gmail, Outlook, iCloud Mail, anything that can forward) to an address on your own domain, and the people you authorize read the latest login code themselves through one read-only link.
 
 No shared email password. No account or app for viewers. $0/month on Cloudflare's free tier.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/inboxshare)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/sharedcodes)
 
-**Website:** [inboxshare.app](https://inboxshare.app) · **中文文档:** [README.zh-CN.md](./README.zh-CN.md)
+**Website:** [sharedcodes.com](https://sharedcodes.com) · **中文文档:** [README.zh-CN.md](./README.zh-CN.md)
 
 ---
 
@@ -21,7 +21,7 @@ You are the person whose email address is on the shared accounts. Every one of t
 - **The shared ChatGPT or Claude account.** ChatGPT and Claude sign you in with a 6-digit code sent to the registered mailbox instead of a password. The account is in your name, so every teammate's login lands on you.
 - **The team's Canva or social-media account.** Email-code login only. Three people, one mailbox, and whoever owns it is the bottleneck.
 
-Use InboxShare within each service's sharing rules: the people in your household, or the seats on your team plan.
+Use Shared Codes within each service's sharing rules: the people in your household, or the seats on your team plan.
 
 ## 2. The problem
 
@@ -33,10 +33,10 @@ Existing workarounds all fail on one of these: manual forwarding is slow, shared
 
 ## 3. The solution
 
-InboxShare turns one address on your domain into a **read-only web page** that shows only the emails you choose to forward there, with the verification code pulled to the top.
+Shared Codes turns one address on your domain into a **read-only web page** that shows only the emails you choose to forward there, with the verification code pulled to the top.
 
 ```text
-Netflix sends            Your mailbox            code@yourdomain          InboxShare                    Your family
+Netflix sends            Your mailbox            code@yourdomain          Shared Codes                  Your family
 verification email  →   one forwarding rule  →  Cloudflare Email     →  finds the code,          →   opens the link,
                                                  Routing                  hides the rest                reads the code
 ```
@@ -44,14 +44,14 @@ verification email  →   one forwarding rule  →  Cloudflare Email     →  fi
 ### How it works
 
 1. **Forward only the verification emails.** In Gmail or Outlook, add one rule: mail from Netflix, Disney+, HBO Max, OpenAI or Anthropic goes to `code@yourdomain.com`. Everything else stays where it is.
-2. **InboxShare picks out the code, or the button.** Cloudflare Email Routing hands each message to the Worker the moment it arrives. A 4 to 8 digit code is detected and shown with a copy button. When the email carries a button instead of a code (Netflix's "Get code", the Claude Console "Sign in" magic link, Disney+'s "Yes, this was me"), that link is detected too and shown as an "Open verification link" button with a copy button next to it. Password resets, receipts and account-security alerts are classified and hidden by default.
+2. **Shared Codes picks out the code, or the button.** Cloudflare Email Routing hands each message to the Worker the moment it arrives. A 4 to 8 digit code is detected and shown with a copy button. When the email carries a button instead of a code (Netflix's "Get code", the Claude Console "Sign in" magic link, Disney+'s "Yes, this was me"), that link is detected too and shown as an "Open verification link" button with a copy button next to it. Password resets, receipts and account-security alerts are classified and hidden by default.
 3. **Send one link.** In the admin page, create a read-only link for that address with a rolling time window (last 30 minutes, 1 hour, 6 hours, 1 day, 7 days, or all retained mail). Pin it in the family chat. Revoke or delete it whenever you like.
 
 ### What viewers see
 
 A mobile-friendly inbox for that one address: sender, subject, relative time, the code as a chip in the list and as a large copy button in the message, the sanitized HTML body in a sandboxed frame, and attachments as downloads. Emails whose code is behind a button show a "Tap to verify" chip and an "Open verification link" button instead; links in the body open in a new tab as well. On phones the newest code or link sits in a card at the top. The page refreshes every 30 seconds.
 
-### What InboxShare does not do
+### What Shared Codes does not do
 
 - It does not send, reply or forward mail to viewers. The page is read-only.
 - It does not connect to your Gmail or Outlook. No OAuth, no IMAP, no mailbox password. It only receives what your forwarding rule sends.
@@ -79,7 +79,7 @@ Total time: about 20 minutes. You need a Cloudflare account with a domain on it,
 
 **A. Deploy to Cloudflare button** (easiest)
 
-Click the [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/inboxshare) button and follow the flow. It creates the Worker, the D1 database and the R2 bucket. Then, from the repository it created for you:
+Click the [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/sharedcodes) button and follow the flow. It creates the Worker, the D1 database and the R2 bucket. Then, from the repository it created for you:
 
 ```bash
 pnpm install
@@ -96,8 +96,8 @@ pnpm wrangler secret put ADMIN_TOKEN     # a random string, 16+ characters
 **C. Wrangler CLI**
 
 ```bash
-git clone https://github.com/funcin/inboxshare.git
-cd inboxshare
+git clone https://github.com/funcin/sharedcodes.git
+cd sharedcodes
 pnpm install
 pnpm wrangler login
 pnpm run deploy                      # applies D1 migrations, then deploys
@@ -109,12 +109,12 @@ The top-level `wrangler.jsonc` is a generic template with no resource ids. `env.
 ### Step 2: Point an address at the Worker
 
 1. **Cloudflare Dashboard → your domain → Email → Email Routing**, enable it (MX and SPF records are added for you).
-2. **Routing rules → Create address**, for example `code@yourdomain.com`. Action: **Send to a Worker** → your InboxShare Worker.
+2. **Routing rules → Create address**, for example `code@yourdomain.com`. Action: **Send to a Worker** → your Shared Codes Worker.
 3. Optional: set the **Catch-all** to the same Worker so any address on the domain (`disney@`, `team@`) becomes its own shared inbox without further setup.
 
 ### Step 3: Forward the right emails from your mailbox
 
-- **Gmail:** Settings → Forwarding → add `code@yourdomain.com` (the confirmation email lands in InboxShare; create a link in step 4 to read its code). Then Filters → create: `from:(netflix.com OR disneyplus.com OR openai.com)` → *Forward it to* that address.
+- **Gmail:** Settings → Forwarding → add `code@yourdomain.com` (the confirmation email lands in Shared Codes; create a link in step 4 to read its code). Then Filters → create: `from:(netflix.com OR disneyplus.com OR openai.com)` → *Forward it to* that address.
 - **Outlook:** Settings → Mail → Rules → condition on sender or subject → action *Forward to*.
 - **iCloud, QQ Mail, 163 and others:** the same rule-based forwarding under Rules or Auto-forward.
 
@@ -202,7 +202,7 @@ There is no built-in rate limiting on the public viewer API. Consider a Cloudfla
 
 ## Hosted version
 
-Prefer not to run it yourself? Leave your email at the bottom of [inboxshare.app](https://inboxshare.app) and we will reply within 24 hours.
+Prefer not to run it yourself? Leave your email at the bottom of [sharedcodes.com](https://sharedcodes.com) and we will reply within 24 hours.
 
 ## License
 

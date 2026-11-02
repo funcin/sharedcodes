@@ -1,4 +1,5 @@
 import { EmailMessage } from 'cloudflare:email';
+import { BRAND } from './brand';
 import type { Env } from './types';
 
 /**
@@ -13,15 +14,15 @@ export async function notifyWaitlist(env: Env, email: string, locale: string, at
 
   const date = new Date(at);
   const lines = [
-    `From: InboxShare <${from}>`,
+    `From: ${BRAND} <${from}>`,
     `To: ${to}`,
-    `Subject: [InboxShare] Hosted waitlist: ${email}`,
+    `Subject: [${BRAND}] Hosted waitlist: ${email}`,
     `Date: ${date.toUTCString()}`,
     `Message-ID: <waitlist-${at}-${Math.random().toString(36).slice(2)}@${from.split('@')[1]}>`,
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset=utf-8',
     '',
-    'New signup for the hosted version of InboxShare.',
+    `New signup for the hosted version of ${BRAND}.`,
     '',
     `Email:  ${email}`,
     `Locale: ${locale}`,

@@ -7,7 +7,7 @@
   //   - 想绑自定义域名、改语言，照着下面 env.production 的写法加一个你自己的环境
   // env.production 是本仓库作者自己的实例，fork 后删掉或改成你的。
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "inboxshare",
+  "name": "sharedcodes",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -29,7 +29,8 @@
   "vars": {
     // 邮件保留天数（超过即删，含 R2 附件）
     "RETENTION_DAYS": "30",
-    // 生成分享链接时用的站点地址，留空则用请求自身的 origin
+    // 生成分享链接与 canonical 用的站点地址，留空则用请求自身的 origin。
+    // 填了之后，其他主机名（旧域名、www）的请求会被 301 到这个地址的同一路径（src/index.ts）
     "PUBLIC_BASE_URL": "",
     // 可选：收到的邮件同时转发一份到这个地址（必须是 Email Routing 里已验证的目标地址）
     "FORWARD_TO": "",
@@ -47,16 +48,17 @@
   "observability": { "enabled": true },
 
   "env": {
-    // 作者实例（Worker `inboxshare`）：Workers Builds 的部署命令是 `pnpm run deploy:production`
+    // 作者实例（Worker `sharedcodes`）：Workers Builds 的部署命令是 `pnpm run deploy:production`
     "production": {
-      "name": "inboxshare",
-      // inboxshare.app 是正式入口；mail.funcin.de 保留，已发出的旧链接继续可用；
-      // sharedcodes.com 是即将切换的新域名，先绑上验证可达
+      "name": "sharedcodes",
+      // sharedcodes.com 是正式入口。inboxshare.app 与 mail.funcin.de 是旧入口：页面请求由 src/index.ts
+      // 301 到 sharedcodes.com 同路径（已发出的旧链接继续可用），Email Routing 仍在这两个域名上收信，
+      // 用户转发规则里写的是这些域名下的地址，所以它们要无限期保留、不能过期
       "routes": [
-        { "pattern": "inboxshare.app", "custom_domain": true },
-        { "pattern": "mail.funcin.de", "custom_domain": true },
         { "pattern": "sharedcodes.com", "custom_domain": true },
-        { "pattern": "www.sharedcodes.com", "custom_domain": true }
+        { "pattern": "www.sharedcodes.com", "custom_domain": true },
+        { "pattern": "inboxshare.app", "custom_domain": true },
+        { "pattern": "mail.funcin.de", "custom_domain": true }
       ],
       "d1_databases": [
         {
@@ -73,11 +75,11 @@
       "send_email": [{ "name": "EMAIL" }],
       "vars": {
         "RETENTION_DAYS": "30",
-        "PUBLIC_BASE_URL": "https://inboxshare.app",
+        "PUBLIC_BASE_URL": "https://sharedcodes.com",
         "FORWARD_TO": "",
         "LOCALE": "en",
-        "WAITLIST_FROM": "noreply@inboxshare.app",
-        "ANALYTICS_DOMAIN": "inboxshare.app"
+        "WAITLIST_FROM": "noreply@sharedcodes.com",
+        "ANALYTICS_DOMAIN": "sharedcodes.com"
       }
     }
   }

@@ -95,3 +95,20 @@
   - 文案 imagesBlocked / showImages / imagesShown；README 两份、首页 f4Body、CLAUDE.md 红线同步；夹具 `newsletter.eml`（head style + 媒体查询、600 外框、两列 td、cid logo、追踪像素、VML、mso 注释）与 `plain-text.eml`。
   - 验证：typecheck、test:classify；本地投递 5 封，Playwright 驱动本机 Chrome（headless，channel chrome）在 390×844 / 1440 真实渲染并进 sandbox iframe 量宽：手机 iframe 372 宽时表格 372 / 308 不溢出、两列按邮件自己的媒体查询堆叠、hero 占位 372×186；点显示图片后 inboxshare.app 的真实图片加载（naturalWidth 1200）、状态/焦点/aria-live 正确、系统返回回列表、切邮件后状态重置；Disney 验证码邮件无图片条（像素被删）；纯文本链接 href 不吃全角括号；sample.eml 的 script/form/javascript: 仍被剥；Netflix 存取码按钮仍能弹窗。Chrome 扩展桌面复核中英文文案；扩展窗口缩不到 390 宽，手机视口只能靠 Playwright。
   - 未提交到 git（站长确认后再 commit / push 部署）。
+
+2026-11-02 全站改名 **InboxShare → Shared Codes**，域名 **sharedcodes.com**（开源版与托管版共用一个品牌；计划 `.claude/plans/2026-11-02-rename-shared-codes.md`）：
+  - 代码：新建 `src/brand.ts`（BRAND / BRAND_A / BRAND_B / GITHUB_URL / DEPLOY_URL 唯一源），首页文案、管理页 Logo、分享页页脚、名单通知邮件、webmanifest 全部改走它；`src/index.ts` 新增 Host 中间件：配了 `PUBLIC_BASE_URL` 时其他主机名 301（非 GET/HEAD 用 308）到正式域名同路径，`Cache-Control: public, max-age=3600`，localhost / 127.0.0.1 / *.workers.dev 豁免；`public/` 静态文件由 Workers Assets 先返回，旧域名上不 301（无害）。`wrangler.jsonc` 顶层与 production 的 `name` 改 `sharedcodes`，routes 四个域名（新域名 + www + 两个旧入口），`PUBLIC_BASE_URL` / `WAITLIST_FROM` / `ANALYTICS_DOMAIN` 切到新域名。OG 图按 `design/handoff/html/og-image*.html` 用本机 Chrome headless 重绘。README 两份、CLAUDE.md、package.json 同步。
+  - 上线分三段：提交 1（main，`9c3c660`）只把 sharedcodes.com / www 绑到现有 Worker；然后 Dashboard/API 原地把 Worker `inboxshare` 改名 `sharedcodes`；再合并分支 `feat/rename-shared-codes` 推 main。**Workers Builds 会用 `WRANGLER_CI_OVERRIDE_NAME` 把 wrangler 的 name 覆盖成所连 Worker，直接改 name 推上去不会新建 Worker。**
+  - 站长待办（按顺序，做完打勾）：
+    - [ ] GitHub：funcin/inboxshare 改名 funcin/sharedcodes；本地 `git remote set-url origin https://github.com/funcin/sharedcodes.git`；Workers → Settings → Build 确认仍连着仓库（必要时 Disconnect / Connect）。
+    - [ ] Cloudflare sharedcodes.com zone → DNS：删掉 apex 与 www 上注册商留下的 A / CNAME 停放记录。
+    - [ ] 同 zone → Email Routing 启用（noreply@sharedcodes.com 发信的前提）。
+    - [ ] Plausible（data.funcin.de）站点 inboxshare.app → Site Settings → General → Domain 改为 sharedcodes.com。
+    - [ ] GSC 添加 sharedcodes.com Domain 属性。
+    - [ ] `git push origin main`（提交 1）→ 验证 https://sharedcodes.com 与 https://www.sharedcodes.com 200。
+    - [ ] 原地改名 Worker：Dashboard Settings → General，或 `PATCH /accounts/{id}/workers/workers/inboxshare` `{"name":"sharedcodes"}`；核对四个域名、ADMIN_TOKEN / WAITLIST_TO、cron、Builds 连接都在。
+    - [ ] 两个旧 zone（inboxshare.app、funcin.de）的 Email Routing 规则与 Catch-all 的「Send to a Worker」确认 / 改为 `sharedcodes`。
+    - [ ] `git merge --ff-only feat/rename-shared-codes && git push`（提交 2）→ 验证 301、首页、管理页（令牌按 origin 存储，要重输一次）、分享页、名单通知来自 noreply@sharedcodes.com。
+    - [ ] GSC 在 inboxshare.app 属性做「网址更改」→ sharedcodes.com；提交新 sitemap。
+    - [ ] 一周后把 `src/index.ts` 的 `max-age=3600` 提到 `86400`。
+    - [ ] 注册商给 inboxshare.app、funcin.de 开自动续费：用户转发规则里写的是 `xxx@inboxshare.app` / `xxx@mail.funcin.de`，域名过期 = 这些用户的收件无声中断。

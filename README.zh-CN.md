@@ -1,14 +1,14 @@
-# InboxShare
+# Shared Codes
 
 **换设备登录，无干扰，家庭成员自己收验证码。**
 
-InboxShare 是一个开源、自部署的**共享验证码收件箱**。把你现有邮箱（Gmail、Outlook、iCloud、QQ 邮箱、163，任何能转发的邮箱）里的验证码邮件转发到你自己域名下的一个地址，被授权的家人或同事通过一个只读链接自己看最新的登录验证码。
+Shared Codes 是一个开源、自部署的**共享验证码收件箱**。把你现有邮箱（Gmail、Outlook、iCloud、QQ 邮箱、163，任何能转发的邮箱）里的验证码邮件转发到你自己域名下的一个地址，被授权的家人或同事通过一个只读链接自己看最新的登录验证码。
 
 不交邮箱密码。看的人不用注册、不装 App。跑在 Cloudflare 免费额度上，每月 0 元。
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/inboxshare)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/sharedcodes)
 
-**官网：** [inboxshare.app/zh](https://inboxshare.app/zh) · **English:** [README.md](./README.md)
+**官网：** [sharedcodes.com/zh](https://sharedcodes.com/zh) · **English:** [README.md](./README.md)
 
 ---
 
@@ -33,10 +33,10 @@ InboxShare 是一个开源、自部署的**共享验证码收件箱**。把你�
 
 ## 三、解决方案
 
-InboxShare 把你域名下的一个地址变成一个**只读网页**，只显示你主动转发到这里的邮件，并把验证码挑到最上面。
+Shared Codes 把你域名下的一个地址变成一个**只读网页**，只显示你主动转发到这里的邮件，并把验证码挑到最上面。
 
 ```text
-Netflix 发出        你的邮箱            code@你的域名            InboxShare              家人
+Netflix 发出        你的邮箱            code@你的域名            Shared Codes            家人
 验证码邮件    →    一条转发规则    →   Cloudflare Email    →   挑出验证码，       →   打开链接，
                                        Routing                  藏起其他                看到验证码
 ```
@@ -44,14 +44,14 @@ Netflix 发出        你的邮箱            code@你的域名            Inbox
 ### 工作方式
 
 1. **只转发验证码邮件。** 在 Gmail 或 Outlook 加一条规则：来自 Netflix、Disney+、HBO Max、OpenAI、Anthropic 的邮件转到 `code@你的域名`，其余邮件原地不动。
-2. **InboxShare 把验证码或按钮挑出来。** 邮件一到，Cloudflare Email Routing 就交给 Worker。4 到 8 位验证码被识别出来并配一个复制按钮。邮件里不是码而是按钮时（Netflix 的「取得存取码」、Claude Console 的「Sign in」魔法链接、Disney+ 的「是我本人」），这个链接同样会被识别出来，显示为「打开验证链接」按钮，旁边带复制。密码重置、账单、账户安全提醒会被分类并默认隐藏。
+2. **Shared Codes 把验证码或按钮挑出来。** 邮件一到，Cloudflare Email Routing 就交给 Worker。4 到 8 位验证码被识别出来并配一个复制按钮。邮件里不是码而是按钮时（Netflix 的「取得存取码」、Claude Console 的「Sign in」魔法链接、Disney+ 的「是我本人」），这个链接同样会被识别出来，显示为「打开验证链接」按钮，旁边带复制。密码重置、账单、账户安全提醒会被分类并默认隐藏。
 3. **发一个链接。** 在管理页为这个地址生成只读链接，带滚动时间窗口（最近 30 分钟、1 小时、6 小时、1 天、7 天或保留期内全部），钉在家庭群里。随时撤销或删除。
 
 ### 访客看到什么
 
 一个适配手机的收件箱：发件人、主题、相对时间，验证码在列表里是标签、在详情里是大号复制按钮，正文经消毒后在沙箱 iframe 里渲染，附件只能下载。验证码藏在按钮后面的邮件，列表里显示「点击验证」标签，详情里是「打开验证链接」按钮；正文里的链接同样能点开新标签页。手机上最新的验证码或链接会放在顶部的卡片里。页面每 30 秒自动刷新。
 
-### InboxShare 不做什么
+### Shared Codes 不做什么
 
 - 不发信、不回复、不转发给访客，页面永远只读。
 - 不连接你的 Gmail 或 Outlook。没有 OAuth，没有 IMAP，不要邮箱密码，只收你转发规则送来的邮件。
@@ -79,7 +79,7 @@ Netflix 发出        你的邮箱            code@你的域名            Inbox
 
 **A. Deploy to Cloudflare 按钮**（最省事）
 
-点上面的 [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/inboxshare) 按钮走完流程，它会创建 Worker、D1 数据库和 R2 存储桶。然后在它为你创建的仓库目录里：
+点上面的 [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/funcin/sharedcodes) 按钮走完流程，它会创建 Worker、D1 数据库和 R2 存储桶。然后在它为你创建的仓库目录里：
 
 ```bash
 pnpm install
@@ -96,8 +96,8 @@ pnpm wrangler secret put ADMIN_TOKEN     # 16 位以上的随机字符串
 **C. Wrangler 命令行**
 
 ```bash
-git clone https://github.com/funcin/inboxshare.git
-cd inboxshare
+git clone https://github.com/funcin/sharedcodes.git
+cd sharedcodes
 pnpm install
 pnpm wrangler login
 pnpm run deploy                      # 先跑 D1 迁移，再部署
@@ -109,12 +109,12 @@ pnpm wrangler secret put ADMIN_TOKEN
 ### 第 2 步：把一个地址指向 Worker
 
 1. **Cloudflare 后台 → 你的域名 → Email → Email Routing**，启用（MX 和 SPF 记录会自动添加）。
-2. **Routing rules → Create address**，比如 `code@你的域名`。Action 选 **Send to a Worker** → 你的 InboxShare Worker。
+2. **Routing rules → Create address**，比如 `code@你的域名`。Action 选 **Send to a Worker** → 你的 Shared Codes Worker。
 3. 可选：把 **Catch-all** 也指向同一个 Worker，这样域名下任意地址（`disney@`、`team@`）都自动成为独立的共享收件箱，不用再回后台加。
 
 ### 第 3 步：在原邮箱设转发规则
 
-- **Gmail：** 设置 → 转发 → 添加 `code@你的域名`（Gmail 的确认邮件会落到 InboxShare，第 4 步建好链接就能看到确认码）。然后过滤器 → 新建：`from:(netflix.com OR disneyplus.com OR openai.com)` → 动作选 *转发到* 这个地址。
+- **Gmail：** 设置 → 转发 → 添加 `code@你的域名`（Gmail 的确认邮件会落到 Shared Codes，第 4 步建好链接就能看到确认码）。然后过滤器 → 新建：`from:(netflix.com OR disneyplus.com OR openai.com)` → 动作选 *转发到* 这个地址。
 - **Outlook：** 设置 → 邮件 → 规则 → 按发件人或主题设条件 → 动作 *转发到*。
 - **iCloud、QQ 邮箱、163 等：** 同样在"规则"或"自动转发"里设置。
 
@@ -202,7 +202,7 @@ pnpm typecheck
 
 ## 托管版
 
-不想自己部署？在 [inboxshare.app/zh](https://inboxshare.app/zh) 底部留下邮箱，我们会在 24 小时内回复你。
+不想自己部署？在 [sharedcodes.com/zh](https://sharedcodes.com/zh) 底部留下邮箱，我们会在 24 小时内回复你。
 
 ## 许可证
 

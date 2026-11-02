@@ -1,4 +1,4 @@
-# InboxShare · 项目规范
+# Shared Codes · 项目规范
 
 ## 是什么
 
@@ -7,7 +7,8 @@ Worker 解析、识别验证码（`src/code.ts`）和「点开才拿到码」的
 链接设定的滚动时间窗口内（30 分钟 … 7 天 / 不限）只读查看邮件与下载附件。典型用途：把主邮箱里的验证码邮件
 转发到这里，让家人或同事自助看验证码。
 
-品牌名 **InboxShare**（只出现在显示层）；GitHub 仓库 `funcin/inboxshare`；正式域名 `inboxshare.app`（mail.funcin.de 作为旧入口保留）。
+品牌名 **Shared Codes**（唯一源 `src/brand.ts`，只出现在显示层；2026-11-02 由 InboxShare 改名，开源版与托管版共用这一个名字）；GitHub 仓库 `funcin/sharedcodes`；正式域名 `sharedcodes.com`。
+旧入口 `inboxshare.app`、`mail.funcin.de`：页面请求由 `src/index.ts` 的中间件 301 到 `sharedcodes.com` 同路径，Email Routing 仍在它们上面收信——用户转发规则里写的是这两个域名下的地址，所以**两个旧域名无限期续费、Email Routing 永不关闭**。
 参考原型：dingyue.xzys.me 的「共享收件箱」（Renewlet 二开 + LanQin-Email）；同栈开源邻居：TooonyChen/AuthInbox。
 
 ## 红线（不做什么）
@@ -22,20 +23,21 @@ Worker 解析、识别验证码（`src/code.ts`）和「点开才拿到码」的
 - 邮件里的远程图片默认不加载（追踪像素直接删），访客点「显示图片」后才在那一个正文 iframe 里放行 `img-src https:`。为此分享页的页面 CSP 在 `img-src` 多放行了 `https:`（`about:srcdoc` 继承父页面 CSP），这只服务于访客主动点开的邮件图片，页面本身仍不引用任何远程资源。安全边界是 CSP（srcdoc meta + 页面头），`share.html` 里的 `cleanCss()` 只是卫生处理，不要指望它挡住所有 CSS 转义花样。
 - 文案不硬编码：分享页、管理页的字符串都在 `src/i18n.ts`，页面用 `{{key}}` 占位，服务端按 `LOCALE` 渲染。
 - 营销与文档措辞不写"绕过 household / bypass"，只写"家人、多设备、合规范围内"。
+- 旧品牌名 InboxShare 与旧域名只能出现在 `wrangler.jsonc` 的路由、本文件和 `tasks/` 的历史记录里；文案、README、模板、邮件一律用 `src/brand.ts` 的常量，不再写死品牌名或仓库地址。
 
 ## 数据单一源
 
 - 业务数据：D1（表 `messages`、`share_links`，schema 在 `migrations/`，新字段只加迁移文件不改旧文件）。
 - 附件与超大正文：R2（键 `att/<msgId>/<n>`、`body/<msgId>.html`）。
 - 配置：`wrangler.jsonc` 唯一来源。**顶层是通用模板**（无资源 id、无路由，fork 即可用）；
-  `env.production` 是作者实例（Worker `inboxshare`、D1 `shared-inbox`、域名 `inboxshare.app` + 旧入口 `mail.funcin.de`）。
+  `env.production` 是作者实例（Worker `sharedcodes`、D1 `shared-inbox`、域名 `sharedcodes.com` + `www` + 旧入口 `inboxshare.app`、`mail.funcin.de`；`PUBLIC_BASE_URL` 决定 canonical、分享链接和 301 的目标）。
   作者实例的 Workers Builds 部署命令是 `pnpm run deploy:production`（先远程迁移再部署）。
 - 邮件最长保留 `RETENTION_DAYS`（默认 30），每天 03:17 UTC 的 cron 清理 D1 + R2。
 
 ## 部署方式
 
 见 `README.md`（英文）/ `README.zh-CN.md`（中文）的「Deployment plan / 部署计划」：Deploy 按钮 / fork + Actions / 本地 wrangler 三选一，再在 Email Routing 把地址指向 Worker。两份 README 结构一致（场景 / 问题 / 解决方案 / 部署计划），改一份要同步另一份。
-作者实例：Workers Builds 接 `funcin/inboxshare` 的 `main`，部署命令 `pnpm run deploy:production`。
+作者实例：Workers Builds 接 `funcin/sharedcodes` 的 `main`，部署命令 `pnpm run deploy:production`。Workers Builds 会把 wrangler 的 `name` 强制覆盖成它所连接的 Worker，所以改 `name` 不会新建 Worker；要换名字得在 Dashboard / API 原地重命名。
 
 ## 验证命令
 

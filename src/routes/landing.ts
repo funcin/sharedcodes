@@ -1,5 +1,6 @@
 import { type Context, Hono } from 'hono';
 import { analytics } from '../analytics';
+import { DEPLOY_URL, GITHUB_URL } from '../brand';
 import { addWaitlist } from '../db';
 import { renderPage, resolveLocale, type Locale } from '../i18n';
 import { isValidMailbox, normalizeMailbox } from '../util';
@@ -9,9 +10,6 @@ import landingPage from '../pages/landing.html';
 import type { Env } from '../types';
 
 type App = Hono<{ Bindings: Env }>;
-
-export const GITHUB_URL = 'https://github.com/funcin/inboxshare';
-const DEPLOY_URL = `https://deploy.workers.cloudflare.com/?url=${GITHUB_URL}`;
 
 /** 首页允许被索引、可短缓存；index.ts 的中间件据此跳过 noindex / no-store */
 export const LANDING_PATHS = new Set(['/', '/en', '/zh', '/robots.txt', '/sitemap.xml']);
