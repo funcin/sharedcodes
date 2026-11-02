@@ -5,6 +5,8 @@ export interface Env {
   ADMIN_TOKEN?: string;
   RETENTION_DAYS?: string;
   PUBLIC_BASE_URL?: string;
+  /** 管理页新建链接时，用户名后面拼的收件域名；留空则从 PUBLIC_BASE_URL 的主机名推导（去掉 www.） */
+  MAIL_DOMAIN?: string;
   FORWARD_TO?: string;
   /** 分享页语言：zh-CN | en（部署时在 wrangler.jsonc 里定） */
   LOCALE?: string;

@@ -4,7 +4,7 @@ import { countLinks, createLink, deleteLink, listLinks, listMailboxes, revokeLin
 import { ADMIN_DICTS, renderPage, resolveLocale } from '../i18n';
 import adminPage from '../pages/admin.html';
 import { WINDOW_OPTIONS, type Env, type ShareLinkRow } from '../types';
-import { buildShareKey, isValidMailbox, normalizeMailbox, safeEqual } from '../util';
+import { buildShareKey, isValidLocalPart, isValidMailbox, normalizeMailbox, safeEqual } from '../util';
 
 type App = Hono<{ Bindings: Env }>;
 
@@ -23,6 +23,22 @@ function publicBase(env: Env, requestUrl: string): string {
   return new URL(requestUrl).origin;
 }
 
+/**
+ * 新建链接时用户名后面拼的收件域名：MAIL_DOMAIN 优先，没配就取 PUBLIC_BASE_URL 的主机名去掉 www.；
+ * 两者都没有返回空串，管理页退回「填完整地址」模式。
+ */
+export function mailDomain(env: Env): string {
+  const configured = env.MAIL_DOMAIN?.trim().toLowerCase();
+  if (configured) return configured;
+  const base = env.PUBLIC_BASE_URL?.trim();
+  if (!base) return '';
+  try {
+    return new URL(base).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
 function withUrl(link: ShareLinkRow, base: string) {
   return { ...link, url: `${base}/s/${link.key}` };
 }
@@ -31,7 +47,10 @@ export function registerAdminRoutes(app: App): void {
   app.get('/admin', (c) => {
     const selected = c.req.query('lang');
     const locale = selected === 'en' || selected === 'zh-CN' ? resolveLocale(selected) : resolveLocale(c.env.LOCALE);
-    return c.html(renderPage(adminPage, locale, { ...ADMIN_DICTS[locale], brandA: BRAND_A, brandB: BRAND_B }));
+    // mailDomain 进字典：模板里 @{{mailDomain}} 当后缀显示，前端脚本也从 window.__I18N__ 读它
+    return c.html(
+      renderPage(adminPage, locale, { ...ADMIN_DICTS[locale], brandA: BRAND_A, brandB: BRAND_B, mailDomain: mailDomain(c.env) }),
+    );
   });
 
   // 所有 /api/admin/* 都要 Bearer ADMIN_TOKEN；未配置 token 时整个管理接口关闭
@@ -68,8 +87,19 @@ export function registerAdminRoutes(app: App): void {
       return c.json({ error: 'invalid_json' }, 400);
     }
 
-    const mailbox = normalizeMailbox(body.mailbox ?? '');
-    if (!isValidMailbox(mailbox)) return c.json({ error: 'invalid_mailbox' }, 400);
+    // 两种输入：只填用户名 → 拼上 MAIL_DOMAIN（新流程，先建地址再让对方转发）；
+    // 含 @ 的完整地址 → 原样使用（给旧域名下的邮箱或别的域名建链接）
+    const raw = normalizeMailbox(body.mailbox ?? '');
+    let mailbox: string;
+    if (raw.includes('@')) {
+      if (!isValidMailbox(raw)) return c.json({ error: 'invalid_mailbox' }, 400);
+      mailbox = raw;
+    } else {
+      const domain = mailDomain(c.env);
+      if (!domain) return c.json({ error: 'mail_domain_unset' }, 400);
+      if (!isValidLocalPart(raw)) return c.json({ error: 'invalid_local_part' }, 400);
+      mailbox = `${raw}@${domain}`;
+    }
 
     const windowMinutes = Number(body.windowMinutes ?? 30);
     if (!(WINDOW_OPTIONS as readonly number[]).includes(windowMinutes)) {

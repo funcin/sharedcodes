@@ -63,3 +63,11 @@ export function normalizeMailbox(address: string): string {
 export function isValidMailbox(address: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) && address.length <= 254;
 }
+
+/**
+ * 管理员自填的收件用户名（地址 = 用户名@MAIL_DOMAIN）：7 到 64 位，小写字母数字，
+ * 中间可用 . _ -，符号不能连续、不能在首尾。至少 7 位是为了让别人不容易猜到地址往里塞垃圾信。
+ */
+export function isValidLocalPart(s: string): boolean {
+  return s.length >= 7 && s.length <= 64 && /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/.test(s);
+}

@@ -112,3 +112,13 @@
     - [ ] GSC 在 inboxshare.app 属性做「网址更改」→ sharedcodes.com；提交新 sitemap。
     - [ ] 一周后把 `src/index.ts` 的 `max-age=3600` 提到 `86400`。
     - [ ] 注册商给 inboxshare.app、funcin.de 开自动续费：用户转发规则里写的是 `xxx@inboxshare.app` / `xxx@mail.funcin.de`，域名过期 = 这些用户的收件无声中断。
+
+2026-11-02 管理流程改为**先建地址再转发**（计划 `.claude/plans/2026-11-02-admin-create-address-first.md`）：
+  - 背景：原流程要先把信转发到某个地址、等信到了才能在管理页挑地址建链接。实际上 `src/email.ts` 对收件地址没有白名单，Email Routing 一条 Catch-all → Worker 就让域名下任意地址都能收，所以不需要 Worker 调 Cloudflare API 逐个建地址，只需把管理页顺序倒过来。
+  - 代码：新变量 `MAIL_DOMAIN`（`wrangler.jsonc` 顶层留空、production 为 `sharedcodes.com`；为空时 `src/routes/admin.ts` 的 `mailDomain()` 从 `PUBLIC_BASE_URL` 主机名推导）。`POST /api/admin/links` 的 `mailbox` 不含 `@` 时视为用户名，过 `isValidLocalPart`（7–64 位，小写字母数字 `. _ -`，符号不连续不首尾）后拼上域名；含 `@` 走原来的完整地址校验，兼容给旧域名邮箱建链接。管理页输入框变成「用户名 + 固定 @域名 后缀」，没配域名时后缀隐藏退回完整地址模式；成功面板改成「收件地址（复制）→ 转发说明 → 分享链接（复制）→ Catch-all 提示」；同域邮箱建议项只列用户名。文案 zh / en 同步，README 两份第 2–4 步重排（Catch-all 为主、先建链接后转发）并加 `MAIL_DOMAIN` 配置行，CLAUDE.md 同步。
+  - 站长决定：地址由管理员自填用户名、不自动生成；收信端不拒收未建链接的地址。
+  - 验证：typecheck、test:classify 通过；本地 `pnpm dev --var MAIL_DOMAIN:example.test` 下 API 拒绝 `abc` / `-netflix..family`（invalid_local_part），` Netflix-Family ` 规范化成 `netflix-family@example.test`（key `netflixfamilyA…`），完整地址 `hi@mail.funcin.de` 仍可建；`pnpm test:email netflix-family@example.test` 投递后分享页接口读到验证码。Chrome 扩展 1440 宽 + Playwright（借 freesongmaker 的 node_modules，channel chrome）390×844 中英文真实渲染：无横向溢出、后缀完整、成功面板地址换行可读、两处复制可用；不带 MAIL_DOMAIN 重启后后缀与提示隐藏、只填用户名报 mail_domain_unset、填完整地址可建。首次热重载时 wrangler dev 因本地 SQLite 锁崩过一次，重启即好，与改动无关。
+  - 未提交到 git（站长确认后再 commit / push 部署）。
+  - 站长待办：
+    - [ ] Cloudflare `sharedcodes.com` zone → Email Routing 启用 → Routing rules → **Catch-all** → Send to a Worker → `sharedcodes`。没有这一步，新建的 `xxx@sharedcodes.com` 收不到信（旧域名的 catch-all 已经指着这个 Worker）。
+    - [ ] 发一封测试信到任意 `test-1234@sharedcodes.com`，管理页「已收到邮件的邮箱」出现即通。

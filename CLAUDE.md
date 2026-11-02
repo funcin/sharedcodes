@@ -6,6 +6,7 @@
 Worker 解析、识别验证码（`src/code.ts`）和「点开才拿到码」的操作链接（`src/link.ts`：Netflix「取得存取码」、Claude Console「Sign in」魔法链接、Disney+「是我本人」）、分类后把元数据/正文存 D1、附件存 R2，管理员生成 `/s/<key>` 链接（key = 邮箱用户名 + 序号字母 + 10 位随机尾巴，随机尾巴是唯一的访问控制；备注只在管理页显示，不进 key），访客只能在
 链接设定的滚动时间窗口内（30 分钟 … 7 天 / 不限）只读查看邮件与下载附件。典型用途：把主邮箱里的验证码邮件
 转发到这里，让家人或同事自助看验证码。
+管理流程是**先建后收**（2026-11-02 定）：管理页填一个用户名（7 到 64 位，`src/util.ts` 的 `isValidLocalPart`）就得到收件地址 `用户名@MAIL_DOMAIN` 和分享链接，再把地址给对方配转发；填含 `@` 的完整地址则原样使用（给旧域名邮箱建链接）。收信靠域名 Email Routing 的一条 **Catch-all → Send to a Worker**，Worker 不做收件白名单、不逐个建地址、不调 Cloudflare API。
 
 品牌名 **Shared Codes**（唯一源 `src/brand.ts`，只出现在显示层；2026-11-02 由 InboxShare 改名，开源版与托管版共用这一个名字）；GitHub 仓库 `funcin/sharedcodes`；正式域名 `sharedcodes.com`。
 旧入口 `inboxshare.app`、`mail.funcin.de`：页面请求由 `src/index.ts` 的中间件 301 到 `sharedcodes.com` 同路径，Email Routing 仍在它们上面收信——用户转发规则里写的是这两个域名下的地址，所以**两个旧域名无限期续费、Email Routing 永不关闭**。
@@ -30,7 +31,7 @@ Worker 解析、识别验证码（`src/code.ts`）和「点开才拿到码」的
 - 业务数据：D1（表 `messages`、`share_links`，schema 在 `migrations/`，新字段只加迁移文件不改旧文件）。
 - 附件与超大正文：R2（键 `att/<msgId>/<n>`、`body/<msgId>.html`）。
 - 配置：`wrangler.jsonc` 唯一来源。**顶层是通用模板**（无资源 id、无路由，fork 即可用）；
-  `env.production` 是作者实例（Worker `sharedcodes`、D1 `shared-inbox`、域名 `sharedcodes.com` + `www` + 旧入口 `inboxshare.app`、`mail.funcin.de`；`PUBLIC_BASE_URL` 决定 canonical、分享链接和 301 的目标）。
+  `env.production` 是作者实例（Worker `sharedcodes`、D1 `shared-inbox`、域名 `sharedcodes.com` + `www` + 旧入口 `inboxshare.app`、`mail.funcin.de`；`PUBLIC_BASE_URL` 决定 canonical、分享链接和 301 的目标；`MAIL_DOMAIN` 是管理页新建链接时拼在用户名后的收件域名，留空则取 `PUBLIC_BASE_URL` 主机名）。
   作者实例的 Workers Builds 部署命令是 `pnpm run deploy:production`（先远程迁移再部署）。
 - 邮件最长保留 `RETENTION_DAYS`（默认 30），每天 03:17 UTC 的 cron 清理 D1 + R2。
 

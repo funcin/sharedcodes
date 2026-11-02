@@ -32,6 +32,9 @@
     // 生成分享链接与 canonical 用的站点地址，留空则用请求自身的 origin。
     // 填了之后，其他主机名（旧域名、www）的请求会被 301 到这个地址的同一路径（src/index.ts）
     "PUBLIC_BASE_URL": "",
+    // 收件域名：管理页新建链接时只填用户名，地址 = 用户名@MAIL_DOMAIN。留空则取 PUBLIC_BASE_URL 的主机名（去掉 www.）。
+    // 这个域名的 Email Routing 要有一条 Catch-all → Send to a Worker 指向本 Worker，任意地址的信才会进来
+    "MAIL_DOMAIN": "",
     // 可选：收到的邮件同时转发一份到这个地址（必须是 Email Routing 里已验证的目标地址）
     "FORWARD_TO": "",
     // 分享页与管理页语言：zh-CN | en
@@ -76,6 +79,7 @@
       "vars": {
         "RETENTION_DAYS": "30",
         "PUBLIC_BASE_URL": "https://sharedcodes.com",
+        "MAIL_DOMAIN": "sharedcodes.com",
         "FORWARD_TO": "",
         "LOCALE": "en",
         "WAITLIST_FROM": "noreply@sharedcodes.com",

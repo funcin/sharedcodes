@@ -74,15 +74,27 @@
   input, select { font: inherit; font-size: 15px; width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--is-line-strong); border-radius: 8px; background: var(--is-surface); color: var(--is-ink); }
   input:focus, select:focus { outline: none; border-color: var(--is-accent); box-shadow: 0 0 0 3px var(--is-accent-tint); }
   input.invalid { border-color: var(--is-danger); }
+  /* 收件地址 = 用户名输入框 + 固定域名后缀；没配 MAIL_DOMAIN 时后缀隐藏（.full），输入框填完整地址 */
+  .addr { display: flex; align-items: stretch; min-width: 0; }
+  .addr input { flex: 1 1 0; min-width: 0; border-radius: 8px 0 0 8px; }
+  /* 后缀不收缩（否则域名会被切掉），只有超过六成宽度才省略 */
+  .addr .suffix { flex: 0 0 auto; display: block; line-height: 40px; padding: 0 12px; border: 1px solid var(--is-line-strong); border-left: 0; border-radius: 0 8px 8px 0; background: var(--is-chip); color: var(--is-muted); font-size: 13px; white-space: nowrap; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
+  .addr.full input { border-radius: 8px; }
+  .hint { margin: 0; font-size: 12px; color: var(--is-muted); line-height: 1.5; }
   .sens { display: flex; gap: 10px; align-items: flex-start; padding: 14px; border: 1px solid var(--is-warn-line); background: var(--is-warn-bg); border-radius: 8px; font-size: 13px; color: var(--is-warn-ink); cursor: pointer; }
   .sens input { width: 16px; height: 16px; min-height: 0; margin: 3px 0 0; flex: 0 0 auto; }
   .sens b { display: block; color: var(--is-warn-strong); }
   .err { color: var(--is-danger); font-size: 13px; }
   .created { border: 1px solid var(--is-ok-line); background: var(--is-ok-soft); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
   .created .ct { font-size: 12px; font-weight: 600; color: var(--is-ok-ink); }
+  .created .step { display: flex; flex-direction: column; gap: 4px; }
+  .created .sl { font-size: 12px; font-weight: 600; color: var(--is-ink-2); }
   .created .cr { display: flex; gap: 8px; align-items: center; }
-  .created .cr a { flex: 1; min-width: 0; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--is-ink); }
+  .created .cr a, .created .cr .val { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--is-ink); }
+  /* 收件地址要让人读全，允许换行；分享链接保持单行省略（点开或复制即可） */
+  .created .cr .val { font-weight: 600; user-select: all; white-space: normal; overflow-wrap: anywhere; }
   .created .btn { border-color: var(--is-ok-line); }
+  .created .hint { color: var(--is-ok-ink); }
 
   .tables { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
   .tables .card { overflow: hidden; }
@@ -152,7 +164,11 @@
     <div class="cols" style="margin-top: 24px">
       <section class="card form" aria-labelledby="new-link-h">
         <h2 id="new-link-h">{{newLink}}</h2>
-        <div class="field"><label for="mailbox">{{mailbox}}</label><input id="mailbox" class="mono" list="mailboxes" placeholder="{{mailboxPlaceholder}}" autocomplete="off"><datalist id="mailboxes"></datalist></div>
+        <div class="field"><label for="mailbox">{{mailbox}}</label>
+          <div class="addr" id="addr"><input id="mailbox" class="mono" list="mailboxes" placeholder="{{localPartPlaceholder}}" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="suffix mono" id="mail-suffix">@{{mailDomain}}</span></div>
+          <datalist id="mailboxes"></datalist>
+          <p class="hint" id="mailbox-hint">{{localPartHint}}</p>
+        </div>
         <div class="two">
           <div class="field"><label for="window">{{window}}</label>
             <select id="window">
@@ -165,9 +181,18 @@
         <label class="sens" for="sensitive"><input type="checkbox" id="sensitive"><span><b>{{showSensitive}}</b>{{showSensitiveHint}}</span></label>
         <button class="primary" id="create">{{create}}</button>
         <div class="err hidden" id="create-err"></div>
-        <div class="created hidden" id="created">
+        <div class="created hidden" id="created" role="status">
           <span class="ct">{{createdTitle}}</span>
-          <div class="cr"><a class="mono" id="created-url" href="#" target="_blank" rel="noopener"></a><button type="button" class="btn sm" id="created-copy">{{copy}}</button></div>
+          <div class="step">
+            <span class="sl">{{createdAddress}}</span>
+            <div class="cr"><span class="mono val" id="created-addr"></span><button type="button" class="btn sm" id="created-addr-copy">{{copy}}</button></div>
+            <p class="hint">{{createdForward}}</p>
+          </div>
+          <div class="step">
+            <span class="sl">{{createdLink}}</span>
+            <div class="cr"><a class="mono" id="created-url" href="#" target="_blank" rel="noopener"></a><button type="button" class="btn sm" id="created-copy">{{copy}}</button></div>
+          </div>
+          <p class="hint">{{createdRoutingHint}}</p>
         </div>
       </section>
 
@@ -215,7 +240,20 @@
     return '<button type="button" class="btn sm icon' + (danger ? ' danger' : '') + '" data-' + action + '="' + esc(value) + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' + icon + '</button>';
   }
   function errorLabel(code) {
-    return { invalid_mailbox: T.errInvalidMailbox, invalid_window: T.errInvalidWindow, invalid_expires_at: T.errInvalidExpires, expires_in_past: T.errExpiresPast }[code] || code;
+    return { invalid_mailbox: T.errInvalidMailbox, invalid_local_part: T.errInvalidLocalPart, mail_domain_unset: T.errMailDomainUnset, invalid_window: T.errInvalidWindow, invalid_expires_at: T.errInvalidExpires, expires_in_past: T.errExpiresPast }[code] || code;
+  }
+  // 收件域名由服务端渲染进字典；没配时隐藏后缀，输入框退回填完整地址
+  var MAIL_DOMAIN = T.mailDomain || '';
+  if (!MAIL_DOMAIN) {
+    $('mail-suffix').classList.add('hidden');
+    $('addr').classList.add('full');
+    $('mailbox').placeholder = T.mailboxPlaceholder;
+    $('mailbox-hint').classList.add('hidden');
+  }
+  // 建议项：同域邮箱只给用户名（和输入框的后缀拼起来正好），其他域给完整地址
+  function suggest(mailbox) {
+    var tail = '@' + MAIL_DOMAIN;
+    return MAIL_DOMAIN && mailbox.slice(-tail.length) === tail ? mailbox.slice(0, -tail.length) : mailbox;
   }
   function req(path, opts) {
     opts = opts || {};
@@ -263,7 +301,7 @@
         return '<tr><td class="mono">' + esc(m.mailbox) + '</td><td>' + m.count + '</td><td class="muted">' + esc(fmt(m.latest)) + '</td></tr>';
       }).join('');
       $('mb-empty').classList.toggle('hidden', rows.length > 0);
-      $('mailboxes').innerHTML = rows.map(function (m) { return '<option value="' + esc(m.mailbox) + '">'; }).join('');
+      $('mailboxes').innerHTML = rows.map(function (m) { return '<option value="' + esc(suggest(m.mailbox)) + '">'; }).join('');
     });
     req('/api/admin/links').then(function (r) {
       var rows = r.body.items || [];
@@ -301,10 +339,13 @@
       .then(function (r) {
         btn.disabled = false;
         if (!r.ok) {
-          if (r.body.error === 'invalid_mailbox') $('mailbox').classList.add('invalid');
-          $('create-err').textContent = tpl(T.createFailed, { reason: errorLabel(r.body.error || r.status) }); $('create-err').classList.remove('hidden'); return;
+          var e = r.body.error;
+          if (e === 'invalid_mailbox' || e === 'invalid_local_part' || e === 'mail_domain_unset') $('mailbox').classList.add('invalid');
+          $('create-err').textContent = tpl(T.createFailed, { reason: errorLabel(e || r.status) }); $('create-err').classList.remove('hidden'); return;
         }
-        var url = r.body.link.url;
+        var url = r.body.link.url, addr = r.body.link.mailbox;
+        $('created-addr').textContent = addr;
+        $('created-addr-copy').dataset.copy = addr;
         $('created-url').href = url; $('created-url').textContent = url;
         $('created-copy').dataset.copy = url;
         $('created').classList.remove('hidden');

@@ -106,23 +106,30 @@ pnpm wrangler secret put ADMIN_TOKEN
 
 顶层 `wrangler.jsonc` 是通用模板，没有任何资源 id。`env.production` 是作者自己的实例，删掉或换成你的。
 
-### 第 2 步：把一个地址指向 Worker
+### 第 2 步：把域名指向 Worker（只做一次）
 
 1. **Cloudflare 后台 → 你的域名 → Email → Email Routing**，启用（MX 和 SPF 记录会自动添加）。
-2. **Routing rules → Create address**，比如 `code@你的域名`。Action 选 **Send to a Worker** → 你的 Shared Codes Worker。
-3. 可选：把 **Catch-all** 也指向同一个 Worker，这样域名下任意地址（`disney@`、`team@`）都自动成为独立的共享收件箱，不用再回后台加。
+2. **Routing rules → Catch-all address**，Action 选 **Send to a Worker** → 你的 Shared Codes Worker。从此域名下任意地址（`netflix-family@`、`team-2fa@`）的来信都进 Shared Codes，以后不用再回这里加地址。
+3. 在 `wrangler.jsonc` 把 `MAIL_DOMAIN` 设成这个域名（留空则取 `PUBLIC_BASE_URL` 的主机名）。管理页会把它拼在你填的用户名后面。
 
-### 第 3 步：在原邮箱设转发规则
+只想开放固定几个地址？不设 Catch-all，改用 **Create address** 逐个建；发到其他地址的信会退回，管理页仍可填完整地址建链接。
 
-- **Gmail：** 设置 → 转发 → 添加 `code@你的域名`（Gmail 的确认邮件会落到 Shared Codes，第 4 步建好链接就能看到确认码）。然后过滤器 → 新建：`from:(netflix.com OR disneyplus.com OR openai.com)` → 动作选 *转发到* 这个地址。
+### 第 3 步：生成收件地址和分享链接
+
+打开 `https://<你的 Worker 域名>/admin`，输入 `ADMIN_TOKEN`，填一个用户名（7 位以上，小写字母、数字和 `. _ -`），选时间窗口，按需填过期时间和备注，点**生成链接**。页面会给你两样东西：
+
+- **收件地址** `用户名@你的域名`，给验证码邮件所在邮箱的主人；
+- **分享链接** `/s/<key>`，给需要看验证码的人。
+
+不用先等邮件进来，Catch-all 存在的那一刻这个地址就能收信。
+
+### 第 4 步：把验证码邮件转发到这个地址
+
+- **Gmail：** 设置 → 转发 → 添加收件地址（Gmail 的确认邮件会落到 Shared Codes，打开分享链接就能看到确认码）。然后过滤器 → 新建：`from:(netflix.com OR disneyplus.com OR openai.com)` → 动作选 *转发到* 这个地址。
 - **Outlook：** 设置 → 邮件 → 规则 → 按发件人或主题设条件 → 动作 *转发到*。
 - **iCloud、QQ 邮箱、163 等：** 同样在"规则"或"自动转发"里设置。
 
-规则尽量窄，只让验证码邮件离开你的邮箱。
-
-### 第 4 步：生成分享链接
-
-打开 `https://<你的 Worker 域名>/admin`，输入 `ADMIN_TOKEN`，选接收地址，选时间窗口，按需填过期时间和备注，点**生成链接**。复制 `/s/<key>` 地址发给需要的人。
+规则尽量窄，只让验证码邮件离开原邮箱。
 
 ### 第 5 步：验证
 
@@ -147,6 +154,7 @@ pnpm wrangler secret put ADMIN_TOKEN
 | `ADMIN_TOKEN` | secret / `.dev.vars` | 必填，16 位以上。缺失时管理接口返回 503。 |
 | `RETENTION_DAYS` | `vars` | 邮件和附件保留天数，默认 `30`。每日 cron 清理 D1 和 R2 里更早的数据。 |
 | `PUBLIC_BASE_URL` | `vars` | 生成分享链接用的站点地址，留空则用请求自身的 origin。 |
+| `MAIL_DOMAIN` | `vars` | 管理页填用户名时拼在后面的收件域名（`用户名@MAIL_DOMAIN`）。留空则取 `PUBLIC_BASE_URL` 的主机名去掉 `www.`；两者都空时管理页要求填完整地址。这个域名的 Email Routing 需要有 Catch-all 指向本 Worker。 |
 | `FORWARD_TO` | `vars` | 可选：收到的每封邮件同时转发一份到这个已验证的 Email Routing 目标地址。 |
 | `LOCALE` | `vars` | `en`（默认）或 `zh-CN`。 |
 | `WAITLIST_FROM` | `vars` | 可选。首页"托管版"入口收集的邮箱存在 D1 的 `waitlist` 表。要每条都收到邮件通知，设置这个发件地址（你域名下的地址）、加一个名为 `EMAIL` 的 `send_email` 绑定，并用 `wrangler secret put WAITLIST_TO` 存收件人（必须是 Email Routing 里已验证的目标地址）。不设则只落库。 |

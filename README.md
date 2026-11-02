@@ -106,23 +106,30 @@ pnpm wrangler secret put ADMIN_TOKEN
 
 The top-level `wrangler.jsonc` is a generic template with no resource ids. `env.production` is the author's own instance; delete it or replace it with yours.
 
-### Step 2: Point an address at the Worker
+### Step 2: Point your domain at the Worker (once)
 
 1. **Cloudflare Dashboard → your domain → Email → Email Routing**, enable it (MX and SPF records are added for you).
-2. **Routing rules → Create address**, for example `code@yourdomain.com`. Action: **Send to a Worker** → your Shared Codes Worker.
-3. Optional: set the **Catch-all** to the same Worker so any address on the domain (`disney@`, `team@`) becomes its own shared inbox without further setup.
+2. **Routing rules → Catch-all address** → Action: **Send to a Worker** → your Shared Codes Worker. From now on every address on the domain (`netflix-family@`, `team-2fa@`) lands in Shared Codes, so you never come back here to add addresses.
+3. Set `MAIL_DOMAIN` in `wrangler.jsonc` to that domain (or leave it empty to use the host of `PUBLIC_BASE_URL`). The admin page appends it to the username you type.
 
-### Step 3: Forward the right emails from your mailbox
+Prefer a fixed set of addresses instead? Skip the catch-all and use **Create address** for each one. Mail to anything else bounces, and the admin page still accepts a full address.
 
-- **Gmail:** Settings → Forwarding → add `code@yourdomain.com` (the confirmation email lands in Shared Codes; create a link in step 4 to read its code). Then Filters → create: `from:(netflix.com OR disneyplus.com OR openai.com)` → *Forward it to* that address.
+### Step 3: Create a receiving address and its share link
+
+Open `https://<your-worker-host>/admin`, enter `ADMIN_TOKEN`, type a username (7+ characters, lowercase letters, digits and `. _ -`), choose a time window and an optional expiry and label, click **Create link**. The page shows two things to hand out:
+
+- the **receiving address**, `username@yourdomain.com`, for the person whose mailbox gets the verification emails;
+- the **share link**, `/s/<key>`, for the people who need to read the codes.
+
+Nothing has to arrive first. The address starts receiving the moment the catch-all exists.
+
+### Step 4: Forward the right emails to that address
+
+- **Gmail:** Settings → Forwarding → add the receiving address (the confirmation email lands in Shared Codes; open the share link to read its code). Then Filters → create: `from:(netflix.com OR disneyplus.com OR openai.com)` → *Forward it to* that address.
 - **Outlook:** Settings → Mail → Rules → condition on sender or subject → action *Forward to*.
 - **iCloud, QQ Mail, 163 and others:** the same rule-based forwarding under Rules or Auto-forward.
 
-Keep the rule narrow. Only the verification emails need to leave your mailbox.
-
-### Step 4: Create a share link
-
-Open `https://<your-worker-host>/admin`, enter `ADMIN_TOKEN`, pick the receiving address, choose a time window and an optional expiry and label, click **Create link**. Copy the `/s/<key>` URL and send it to the people who need it.
+Keep the rule narrow. Only the verification emails need to leave the mailbox.
 
 ### Step 5: Verify
 
@@ -147,6 +154,7 @@ Share links use `PUBLIC_BASE_URL`. `LOCALE` is `en` or `zh-CN`; every page also 
 | `ADMIN_TOKEN` | secret / `.dev.vars` | Required, 16+ characters. Admin endpoints return 503 without it. |
 | `RETENTION_DAYS` | `vars` | Days to keep mail and attachments; default `30`. A daily cron deletes older data from D1 and R2. |
 | `PUBLIC_BASE_URL` | `vars` | Base URL for generated share links; empty = request origin. |
+| `MAIL_DOMAIN` | `vars` | Domain appended to the username typed on the admin page (`username@MAIL_DOMAIN`). Empty = host of `PUBLIC_BASE_URL` without `www.`; if that is empty too, the admin page asks for a full address. Its Email Routing needs a catch-all rule to this Worker. |
 | `FORWARD_TO` | `vars` | Optional: also forward every received email to this verified Email Routing destination. |
 | `LOCALE` | `vars` | `en` (default) or `zh-CN`. |
 | `WAITLIST_FROM` | `vars` | Optional. The landing page's "hosted version" signup is stored in the D1 `waitlist` table. To also get an email per signup, set this sender on your domain, add a `send_email` binding named `EMAIL`, and store the recipient with `wrangler secret put WAITLIST_TO` (a verified Email Routing destination). Unset = store only. |
