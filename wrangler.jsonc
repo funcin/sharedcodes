@@ -50,10 +50,13 @@
     // 作者实例（Worker `inboxshare`）：Workers Builds 的部署命令是 `pnpm run deploy:production`
     "production": {
       "name": "inboxshare",
-      // inboxshare.app 是正式入口；mail.funcin.de 保留，已发出的旧链接继续可用
+      // inboxshare.app 是正式入口；mail.funcin.de 保留，已发出的旧链接继续可用；
+      // sharedcodes.com 是即将切换的新域名，先绑上验证可达
       "routes": [
         { "pattern": "inboxshare.app", "custom_domain": true },
-        { "pattern": "mail.funcin.de", "custom_domain": true }
+        { "pattern": "mail.funcin.de", "custom_domain": true },
+        { "pattern": "sharedcodes.com", "custom_domain": true },
+        { "pattern": "www.sharedcodes.com", "custom_domain": true }
       ],
       "d1_databases": [
         {
