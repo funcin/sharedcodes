@@ -121,4 +121,4 @@
   - 2026-11-02 提交 `2c85803` 推 main，Workers Builds 约 20 秒后上线：https://sharedcodes.com/admin 200，页面后缀已是 `@sharedcodes.com`。
   - 站长待办：
     - [x] Cloudflare `sharedcodes.com` zone → Email Routing 启用 → Routing rules → **Catch-all** → Send to a Worker → `sharedcodes`。（2026-11-02 站长完成；MX / SPF 从外部已核实，Catch-all 指向只能靠投递验证）
-    - [ ] 发一封测试信到任意 `test-1234@sharedcodes.com`，管理页「已收到邮件的邮箱」出现即通。
+    - [x] 发一封测试信到任意 `test-1234@sharedcodes.com`，管理页「已收到邮件的邮箱」出现即通。（2026-11-02 站长实测：后台建地址 → 投递 → 分享页看到，符合预期；Catch-all → `sharedcodes` 由此确认）
