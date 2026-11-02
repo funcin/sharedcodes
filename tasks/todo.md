@@ -102,7 +102,7 @@
   - 站长待办（按顺序，做完打勾）：
     - [x] GitHub：funcin/inboxshare 改名 funcin/sharedcodes；本地 `git remote set-url origin https://github.com/funcin/sharedcodes.git`；Workers → Settings → Build 确认仍连着仓库（必要时 Disconnect / Connect）。（2026-11-02 完成；Builds 仍连着，但**部署命令被重置成了默认的 `npx wrangler deploy`**，第一次构建用顶层模板配置把生产变量清空、没绑新域名，改回 `pnpm run deploy:production` 重跑后恢复）
     - [ ] Cloudflare sharedcodes.com zone → DNS：删掉 apex 与 www 上注册商留下的 A / CNAME 停放记录。
-    - [ ] 同 zone → Email Routing 启用（noreply@sharedcodes.com 发信的前提）。
+    - [x] 同 zone → Email Routing 启用（noreply@sharedcodes.com 发信的前提）。（2026-11-02 站长完成；MX 指向 route1/2/3.mx.cloudflare.net，SPF 已加）
     - [x] Plausible（data.funcin.de）站点 inboxshare.app → Site Settings → General → Domain 改为 sharedcodes.com。（2026-11-02 完成，历史保留；线上首页 data-domain 已是 sharedcodes.com）
     - [ ] GSC 添加 sharedcodes.com Domain 属性。
     - [x] `git push origin main`（提交 1）→ 验证 https://sharedcodes.com 与 https://www.sharedcodes.com 200。（2026-11-02 完成，四个域名证书齐全）
@@ -120,5 +120,5 @@
   - 验证：typecheck、test:classify 通过；本地 `pnpm dev --var MAIL_DOMAIN:example.test` 下 API 拒绝 `abc` / `-netflix..family`（invalid_local_part），` Netflix-Family ` 规范化成 `netflix-family@example.test`（key `netflixfamilyA…`），完整地址 `hi@mail.funcin.de` 仍可建；`pnpm test:email netflix-family@example.test` 投递后分享页接口读到验证码。Chrome 扩展 1440 宽 + Playwright（借 freesongmaker 的 node_modules，channel chrome）390×844 中英文真实渲染：无横向溢出、后缀完整、成功面板地址换行可读、两处复制可用；不带 MAIL_DOMAIN 重启后后缀与提示隐藏、只填用户名报 mail_domain_unset、填完整地址可建。首次热重载时 wrangler dev 因本地 SQLite 锁崩过一次，重启即好，与改动无关。
   - 2026-11-02 提交 `2c85803` 推 main，Workers Builds 约 20 秒后上线：https://sharedcodes.com/admin 200，页面后缀已是 `@sharedcodes.com`。
   - 站长待办：
-    - [ ] Cloudflare `sharedcodes.com` zone → Email Routing 启用 → Routing rules → **Catch-all** → Send to a Worker → `sharedcodes`。没有这一步，新建的 `xxx@sharedcodes.com` 收不到信（旧域名的 catch-all 已经指着这个 Worker）。
+    - [x] Cloudflare `sharedcodes.com` zone → Email Routing 启用 → Routing rules → **Catch-all** → Send to a Worker → `sharedcodes`。（2026-11-02 站长完成；MX / SPF 从外部已核实，Catch-all 指向只能靠投递验证）
     - [ ] 发一封测试信到任意 `test-1234@sharedcodes.com`，管理页「已收到邮件的邮箱」出现即通。
