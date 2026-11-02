@@ -31,3 +31,9 @@
 ## 2026-11-02 - 页面 CSP 没有 unsafe-eval 时 Playwright 的 waitForFunction 会炸
 **问题**: `page.waitForFunction` 报 EvalError（CSP 不允许 eval）。
 **教训**: 严格 CSP 的页面用 `waitForSelector('#x.hidden', { state: 'attached' })` 这类选择器等待；`page.evaluate(fn)` 不受影响。Chrome 扩展的 `resize_window` 在本机缩不到 390 宽，手机视口要靠 Playwright（`channel: 'chrome'`, headless）。
+
+## 2026-11-02 - Worker 改名后 Workers Builds 的部署命令被重置，构建"成功"却部署了错误配置
+**问题**: 在 Dashboard 原地把 Worker 从 `inboxshare` 改名 `sharedcodes` 后，推送触发的构建显示成功，但线上版本的变量全空、`send_email` 绑定消失、新域名没绑上。
+**原因**: Builds 的部署命令被重置成默认的 `npx wrangler deploy`，用的是顶层通用模板而不是 `--env production`。构建状态只反映命令是否退出 0，不反映部署的是哪套配置。
+**教训**: 部署后不能只看构建绿灯，要用 `wrangler versions view <id> --name <worker>` 核对变量和绑定，或直接 curl 关键 URL；Dashboard 侧对 Worker 的任何改动（改名、重连仓库）之后，先确认 Settings → Build 的部署命令仍是 `pnpm run deploy:production`。
+**规则**: 顶层模板与 `env.production` 并存的项目，每次部署验证清单第一条就是"线上 PUBLIC_BASE_URL 是不是生产值"。
