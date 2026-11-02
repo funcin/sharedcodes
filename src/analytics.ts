@@ -10,12 +10,16 @@ const PLAUSIBLE = 'https://data.funcin.de';
 const PLAUSIBLE_SCRIPT = `${PLAUSIBLE}/js/script.outbound-links.js`;
 
 /** 严格 CSP 之上某个页面额外放行的来源 */
-export type CspExtra = { script?: string[]; connect?: string[] };
+export type CspExtra = { script?: string[]; connect?: string[]; img?: string[] };
 
-/** 自家页面的 CSP：只跑自己的内联脚本，邮件正文在 sandbox iframe + 更严的 srcdoc CSP 里渲染；extra 是首页统计脚本要的来源 */
+/**
+ * 自家页面的 CSP：只跑自己的内联脚本，邮件正文在 sandbox iframe + 更严的 srcdoc CSP 里渲染。
+ * extra.script / connect 是首页统计脚本要的来源；extra.img 是分享页给「显示图片」用的（srcdoc iframe 继承父页面 CSP，
+ * 所以访客点了「显示图片」之后邮件里的 https 图片要父页面也放行才能加载；页面本身不引用任何远程图片）。
+ */
 export function csp(extra: CspExtra = {}): string {
   const list = (sources?: string[]) => (sources?.length ? ` ${sources.join(' ')}` : '');
-  return `default-src 'none'; script-src 'unsafe-inline'${list(extra.script)}; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; connect-src 'self'${list(extra.connect)}; frame-src 'self' about:; base-uri 'none'; form-action 'none'`;
+  return `default-src 'none'; script-src 'unsafe-inline'${list(extra.script)}; style-src 'unsafe-inline'; img-src 'self' data:${list(extra.img)}; font-src data:; connect-src 'self'${list(extra.connect)}; frame-src 'self' about:; base-uri 'none'; form-action 'none'`;
 }
 
 /** 首页 <head> 里的统计标签和它需要的 CSP；没配 ANALYTICS_DOMAIN 时是空标签 + 严格 CSP */

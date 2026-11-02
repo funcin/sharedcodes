@@ -1,0 +1,116 @@
+From: "Netflix" <info@members.netflix.example>
+To: share@example.com
+Subject: =?UTF-8?B?RnVuY2lu77yM6L+Z5Lqb6KeG6aKR5Y2z5bCG5LiK57q/?=
+Date: Mon, 02 Nov 2026 02:01:00 +0000
+Message-ID: <newsletter-1@members.netflix.example>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="REL"
+
+--REL
+Content-Type: multipart/alternative; boundary="ALT"
+
+--ALT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+11月2日 - 11月16日 您的 Netflix 新片快报
+即将上线：全新故事、最爱经典，还有更多的精彩。
+浏览所有即将上线的作品：https://www.netflix.com/browse/coming-soon?src=email
+
+--ALT
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html lang="zh-Hant" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Netflix 新片快报</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style type="text/css">
+  @import url("https://fonts.example/netflix.css");
+  @font-face { font-family: NetflixSans; src: url(https://assets.nflxext.example/NetflixSans.woff2) format("woff2"); }
+  body { margin: 0; padding: 0; background-color: #141414; font-family: NetflixSans, Helvetica, Arial, sans-serif; }
+  .wrapper { width: 600px; min-width: 600px; margin: 0 auto; }
+  .hero-title { font-size: 34px; line-height: 40px; font-weight: 700; color: #ffffff; }
+  .hero-sub { font-size: 18px; line-height: 26px; color: #b3b3b3; }
+  .pill { display: inline-block; padding: 14px 28px; border: 2px solid #808080; border-radius: 999px; color: #ffffff; text-decoration: none; font-size: 18px; }
+  .nowrap { white-space: nowrap; }
+  .bg-promo { background: url(https://assets.nflxext.example/promo-bg.jpg) no-repeat center / cover; }
+  @media only screen and (max-width: 600px) {
+    .hero-title { font-size: 26px !important; line-height: 32px !important; }
+    .stack { display: block !important; width: 100% !important; }
+  }
+</style>
+</head>
+<body bgcolor="#141414" style="margin:0;padding:0;background-color:#141414;">
+<!--[if mso]><table role="presentation" width="600" align="center"><tr><td><![endif]-->
+<style>td { min-width: 600px !important; }</style>
+<center>
+<table role="presentation" class="wrapper" width="600" cellpadding="0" cellspacing="0" border="0" align="center" style="width:600px;min-width:600px;background-color:#141414;">
+  <tr>
+    <td width="600" style="padding:24px 32px 8px;">
+      <a href="https://www.netflix.com/" style="text-decoration:none;"><img src="cid:logo%40netflix" alt="Netflix" width="120" height="32" style="display:block;border:0;"></a>
+    </td>
+  </tr>
+  <tr>
+    <td width="600" style="padding:0;">
+      <a href="https://www.netflix.com/browse/coming-soon"><img src="https://assets.nflxext.example/hero-coming-soon.jpg" alt="您的 Netflix 新片快报：即将上线的作品" width="600" height="300" style="display:block;border:0;width:600px;height:300px;"></a>
+    </td>
+  </tr>
+  <tr>
+    <td width="600" style="padding:28px 32px 8px;">
+      <div style="font-size:16px;color:#b3b3b3;">11月2日 - 11月16日</div>
+      <div class="hero-title">您的 Netflix 新片快報</div>
+      <p class="hero-sub" style="width:600px;margin:12px 0 0;">即將上線：全新故事、最愛經典，還有更多的精彩。</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="600" align="center" style="padding:20px 32px 28px;">
+      <a class="pill" href="https://www.netflix.com/browse/coming-soon?src=email">瀏覽所有即將上線的作品</a>
+    </td>
+  </tr>
+  <tr>
+    <td width="600" class="bg-promo" style="padding:0 32px 24px;background:#1f1f1f url(https://assets.nflxext.example/promo-bg.jpg) no-repeat;">
+      <table role="presentation" width="536" cellpadding="0" cellspacing="0" border="0" style="width:536px;">
+        <tr>
+          <td class="stack" width="268" valign="top" style="padding:16px 8px 16px 0;">
+            <img src="https://assets.nflxext.example/title-a.jpg" alt="作品 A" width="268" height="151" style="display:block;border:0;">
+            <div class="nowrap" style="color:#fff;font-size:15px;margin-top:8px;">一個標題很長很長很長不想換行的作品名稱・第一季</div>
+          </td>
+          <td class="stack" width="268" valign="top" style="padding:16px 0 16px 8px;">
+            <img src="https://inboxshare.app/og-image.png" alt="作品 B" width="268" height="151" style="display:block;border:0;">
+            <div style="color:#fff;font-size:15px;margin-top:8px;">作品 B・限定劇集</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td width="600" style="padding:20px 32px 32px;color:#808080;font-size:12px;line-height:18px;">
+      這封郵件由 Netflix 寄出。<a href="https://www.netflix.com/youraccount" style="color:#808080;">帳戶設定</a> · <a href="https://www.netflix.com/unsubscribe" style="color:#808080;">取消訂閱</a>
+      <img src="https://beacon.netflix.example/open.gif" alt="">
+      <img src="https://beacon.netflix.example/px.gif" width="1" height="1" alt="" style="display:block;">
+    </td>
+  </tr>
+</table>
+</center>
+<v:rect xmlns:v="urn:schemas-microsoft-com:vml" style="width:600px;height:40px;"><v:fill src="https://assets.nflxext.example/vml.jpg" /></v:rect>
+<!--[if mso]></td></tr></table><![endif]-->
+</body>
+</html>
+
+--ALT--
+
+--REL
+Content-Type: image/png; name="logo.png"
+Content-Transfer-Encoding: base64
+Content-ID: <logo@netflix>
+Content-Disposition: inline; filename="logo.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAHgAAAAgCAIAAABW2ysfAAAASElEQVR42u3QMQ0AAAgDsL38+HeH
+D1TA1aQKmqnmQRSIFo1o0aItiBaNaNGiLYgWjWjRohEtGtGiRSNaNKJFi0a0aESLFs21BUo7HuIW
+CbchAAAAAElFTkSuQmCC
+
+--REL--

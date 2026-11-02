@@ -174,7 +174,7 @@ pnpm typecheck
 - key 以 10 位随机字母数字结尾（约 60 bit），可读前缀只为好认。备注只在管理页显示，不进 URL。
 - 链接可过期、撤销、删除；滚动窗口和 `RETENTION_DAYS` 限定可见范围。
 - 密码重置、账单、账户安全邮件默认隐藏，除非管理员为某条链接显式打开。只对完全信任的人打开。
-- 邮件 HTML 在浏览器端消毒后放进带独立严格 CSP 的沙箱 iframe 渲染，脚本、表单、远程图片都被去掉。分享页和管理页不加载任何第三方资源；首页只在设置了 `ANALYTICS_DOMAIN` 时带一个无 Cookie 的 Plausible 统计标签。
+- 邮件 HTML 在浏览器端消毒后放进带独立严格 CSP 的沙箱 iframe 渲染，脚本、表单都被去掉。远程图片默认不加载（追踪像素直接丢弃），访客点「显示图片」才在那一封邮件里加载。分享页和管理页本身不加载任何第三方资源；首页只在设置了 `ANALYTICS_DOMAIN` 时带一个无 Cookie 的 Plausible 统计标签。
 - 附件一律按下载处理，HTML、SVG、XML、脚本类型强制为 `application/octet-stream`。
 - 所有页面带 `no-store`、`noindex`、`no-referrer`，只有首页允许被索引。
 - `ADMIN_TOKEN` 存在 Worker secret 里，不进仓库。
@@ -184,7 +184,7 @@ pnpm typecheck
 ## 已知限制
 
 - Cloudflare Email Workers 接收的邮件含附件约 25 MB 以内。
-- 不显示内嵌 `cid:` 图片；超大 HTML 正文存 R2。
+- 内嵌 `cid:` 图片从已存的附件还原显示（单张 1.5 MB 以内）；超大 HTML 正文存 R2。
 - 各邮件服务商的转发和 DMARC 行为不同，依赖的每个发件方都要实测。
 - Cloudflare 的用量限制和费用取决于你的套餐。
 

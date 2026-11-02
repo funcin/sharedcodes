@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { csp } from '../analytics';
 import { countHiddenSensitive, getLink, getMessage, listMessages } from '../db';
 import { attachmentKey } from '../email';
 import { DICTS, renderPage, resolveLocale } from '../i18n';
@@ -43,6 +44,9 @@ export function registerPublicRoutes(app: App): void {
   app.get('/s/:key', (c) => {
     const selected = c.req.query('lang');
     const locale = selected === 'en' || selected === 'zh-CN' ? resolveLocale(selected) : resolveLocale(c.env.LOCALE);
+    // 正文 iframe（about:srcdoc）继承本页 CSP：img-src 多放行 https:，只为访客点「显示图片」后的邮件远程图片；
+    // iframe 自己的 meta CSP 默认仍只有 img-src data:，没点之前什么都不加载
+    c.header('Content-Security-Policy', csp({ img: ['https:'] }));
     return c.html(renderPage(sharePage, locale, DICTS[locale], { days: String(retentionDays(c.env)) }));
   });
 

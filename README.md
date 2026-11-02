@@ -174,7 +174,7 @@ Open `/admin`, create a link for `share@example.com`, then open `/s/<key>` on de
 - Share keys end in 10 random alphanumeric characters (about 60 bits). The readable prefix is for recognition only. Labels are admin-only and never part of the URL.
 - Links can expire, be revoked or be deleted; rolling windows and `RETENTION_DAYS` bound what is visible.
 - Password resets, billing and account-security emails are hidden unless an admin enables them for a specific link. Only do that for people you fully trust.
-- Email HTML is sanitized in the browser and rendered in a sandboxed iframe with its own strict CSP; scripts, forms and remote images are stripped. Share and admin pages load no third-party resources; the landing page carries a cookie-free Plausible tag only if `ANALYTICS_DOMAIN` is set.
+- Email HTML is sanitized in the browser and rendered in a sandboxed iframe with its own strict CSP; scripts and forms are stripped. Remote images are not loaded by default (tracking pixels are dropped); a viewer can click "Show images" to load them for that one message. Share and admin pages load no third-party resources themselves; the landing page carries a cookie-free Plausible tag only if `ANALYTICS_DOMAIN` is set.
 - Attachments are always served as downloads; HTML, SVG, XML and script types are forced to `application/octet-stream`.
 - Every page is served with `no-store`, `noindex` and `no-referrer`; only the landing page is indexable.
 - `ADMIN_TOKEN` lives in a Worker secret, never in the repository.
@@ -184,7 +184,7 @@ There is no built-in rate limiting on the public viewer API. Consider a Cloudfla
 ## Limitations
 
 - Cloudflare Email Workers accept messages up to roughly 25 MB including attachments.
-- Inline `cid:` images are not displayed; large HTML bodies are stored in R2.
+- Inline `cid:` images are restored from the stored attachments (images up to 1.5 MB each); large HTML bodies are stored in R2.
 - Forwarding and DMARC behaviour differs between providers; test each sender you rely on.
 - Cloudflare usage limits and charges depend on your plan.
 

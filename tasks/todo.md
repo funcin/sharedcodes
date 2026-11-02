@@ -85,3 +85,13 @@
   - 用例：`pnpm test:classify` 加 8 条链接用例（Netflix 繁中 HTML/纯文本、Netflix 英文、Console HTML/纯文本、Disney+ 图片按钮、新闻邮件 Log in 不算、只有退订链接不算）+ 5 条分类用例；fixtures 加 `netflix-link.eml`、`claude-console.eml`。tsconfig 开 `allowImportingTsExtensions`（link.ts 要 import './code.ts' 让 node --experimental-strip-types 直接跑）。
   - 验证：typecheck、test:classify 全过；本地 wrangler dev 投递三封后用 Playwright（有头 Chrome）在 1440 / 390、中 / 英四组真实渲染：标签、链接卡、顶部卡、打开按钮弹出正确 URL（opener 为 null）、复制到剪贴板一致、iframe 内按钮弹窗、有码邮件链接卡隐藏、无横向溢出、无控制台错误。
   - 教训：Playwright 在同一页面已经开过一次弹窗之后，收不到 sandbox iframe 再开的 popup 事件（无头/有头都有，与 Chrome 无关：keep 住第一个弹窗或先测 iframe 就正常），验证脚本要把 iframe 点击放在最前面。Chrome 扩展这次未连接，没法用真实 Chrome 复核。
+
+2026-11-02 分享页正文渲染适配普通邮件（营销图文 / 纯文本），含移动端（计划 `.claude/plans/1-quiet-bonbon.md`）：
+  - 消毒器重写（仍是浏览器端 DOMParser，红线不动）：邮件 `<head>` 里的 `<style>` 不再丢（按顺序搬进 srcdoc head，`cleanCss()` 剔 @import / expression / 非 data 的 url()），覆盖表放最后；`style` 属性不再整条删；注释节点、VML/Office 命名空间标签删掉；邮件 body 的底色 / dir / lang 搬到输出 body。
+  - 流式化：≥300px 的 `width` 属性 / 内联 `width:Npx` 改成「`width:100%;max-width:Npx`」混合写法，`min-width:Npx` 删；`td/th` 的像素宽按所属表格声明宽改成百分比（单元格宽是表格布局的最小宽度，光 max-width 压不住）；≥100px 的图片同样混合写法；手机（≤480）单元格内一律允许换行。覆盖表里 img/table 的 `max-width:100%` 故意不加 `!important`，否则会压掉内联的 `max-width:Npx` 让 600px 表格变满宽。
+  - 图片：远程图默认不加载（`src`→`data-src`，有宽高时按 aspect-ratio 留占位块），1×1 像素和 open.gif / pixel / beacon 这类无尺寸打点图直接删；iframe 上方 `#img-bar`「显示图片」按钮，点了才用 `img-src data: https:` 的 meta CSP 重建 iframe，按钮换成 role=status 并聚焦 + aria-live；`cid:` 内嵌图从同源附件接口取回转 data URL（单张 ≤1.5MB、总 ≤5MB、4s 超时，排除 svg），显示出来的不再列为附件。分享页响应头 CSP 的 `img-src` 多放行 `https:`（srcdoc 继承父页面 CSP），`csp()` 加 `img` 参数，只在 `GET /s/:key` 用。
+  - 纯文本：系统字体、同款边框盒子，URL 用 DOM 节点 linkify（全角标点截断，不走 innerHTML）。
+  - 手机：阅读详情时 `.detail` `position:fixed; inset:0` 全屏（邮件 App 模式），iframe flex 填满剩余视口；去掉 `calc(100dvh - 320px)`。
+  - 文案 imagesBlocked / showImages / imagesShown；README 两份、首页 f4Body、CLAUDE.md 红线同步；夹具 `newsletter.eml`（head style + 媒体查询、600 外框、两列 td、cid logo、追踪像素、VML、mso 注释）与 `plain-text.eml`。
+  - 验证：typecheck、test:classify；本地投递 5 封，Playwright 驱动本机 Chrome（headless，channel chrome）在 390×844 / 1440 真实渲染并进 sandbox iframe 量宽：手机 iframe 372 宽时表格 372 / 308 不溢出、两列按邮件自己的媒体查询堆叠、hero 占位 372×186；点显示图片后 inboxshare.app 的真实图片加载（naturalWidth 1200）、状态/焦点/aria-live 正确、系统返回回列表、切邮件后状态重置；Disney 验证码邮件无图片条（像素被删）；纯文本链接 href 不吃全角括号；sample.eml 的 script/form/javascript: 仍被剥；Netflix 存取码按钮仍能弹窗。Chrome 扩展桌面复核中英文文案；扩展窗口缩不到 390 宽，手机视口只能靠 Playwright。
+  - 未提交到 git（站长确认后再 commit / push 部署）。

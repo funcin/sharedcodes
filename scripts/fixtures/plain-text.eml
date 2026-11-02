@@ -1,0 +1,25 @@
+From: "GitHub" <noreply@github.example>
+To: share@example.com
+Subject: =?UTF-8?B?W0dpdEh1Yl0g6K+36aqM6K+B5L2g55qE6K6+5aSH?=
+Date: Mon, 02 Nov 2026 02:05:00 +0000
+Message-ID: <plain-1@github.example>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+你好 funcin，
+
+我们注意到一台新设备尝试登录你的账户。如果是你本人，请在 10 分钟内打开下面的链接完成确认：
+
+https://github.example/sessions/verify?token=AbC123xyz&device=iphone-15-pro&utm_source=email（链接只能使用一次）
+
+如果不是你本人，请立即修改密码：https://github.example/settings/security.
+
+设备信息：
+  - 位置：Shanghai, China（根据 IP 推测）
+  - 浏览器：Safari on iOS 19
+  - 时间：2026-11-02 10:05 (UTC+8)
+
+谢谢，
+GitHub 团队
+https://github.example/

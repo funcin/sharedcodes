@@ -62,6 +62,9 @@ const zhCN = {
   linkCopied: '已复制链接',
   linkChip: '点击验证',
   latestLink: '最新验证链接',
+  imagesBlocked: '远程图片未加载，以保护你的隐私',
+  showImages: '显示图片',
+  imagesShown: '已显示图片',
 };
 
 const en: typeof zhCN = {
@@ -117,6 +120,9 @@ const en: typeof zhCN = {
   linkCopied: 'Link copied',
   linkChip: 'Tap to verify',
   latestLink: 'Latest verification link',
+  imagesBlocked: 'Remote images are not loaded to protect your privacy',
+  showImages: 'Show images',
+  imagesShown: 'Images shown',
 };
 
 export type Dict = typeof zhCN;
