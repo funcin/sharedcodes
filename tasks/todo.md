@@ -15,7 +15,7 @@
 - [x] Email Routing 规则 <共享地址> → Worker `emailshare` 已启用；测试邮件（个人邮箱 → 共享地址）落库；管理接口建链接（24h 窗口、7 天有效）；浏览器真实渲染 /s/<key> 列表 + 详情通过（2026-10-27）
 
 ## 进度
-2026-10-27 线上全链路跑通：Email Routing → Worker → D1 → /s/<key>。首条链接 key 存本地 dev/first-link.json（不进 git）。
+2026-10-27 线上全链路跑通：Email Routing → Worker → D1 → /s/<key>。首条链接 key 存本地 dev/first-link.json（不进 git）。（2026-11-02 该链接与 dev/permanent-link.json 对应的记录早已在管理页删除，两份本地文件已移到废纸篓）
 
 2026-10-27 绑自定义域名 mail.funcin.de（routes custom_domain + PUBLIC_BASE_URL），分享链接改用该域名。注意：配置 routes 后 wrangler 默认关闭 workers.dev 入口，emailshare.funcin.workers.dev 已返回 404，只保留 mail.funcin.de。
 
