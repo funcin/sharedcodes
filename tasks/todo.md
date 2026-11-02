@@ -103,7 +103,7 @@
     - [x] GitHub：funcin/inboxshare 改名 funcin/sharedcodes；本地 `git remote set-url origin https://github.com/funcin/sharedcodes.git`；Workers → Settings → Build 确认仍连着仓库（必要时 Disconnect / Connect）。（2026-11-02 完成；Builds 仍连着，但**部署命令被重置成了默认的 `npx wrangler deploy`**，第一次构建用顶层模板配置把生产变量清空、没绑新域名，改回 `pnpm run deploy:production` 重跑后恢复）
     - [ ] Cloudflare sharedcodes.com zone → DNS：删掉 apex 与 www 上注册商留下的 A / CNAME 停放记录。
     - [ ] 同 zone → Email Routing 启用（noreply@sharedcodes.com 发信的前提）。
-    - [ ] Plausible（data.funcin.de）站点 inboxshare.app → Site Settings → General → Domain 改为 sharedcodes.com。
+    - [x] Plausible（data.funcin.de）站点 inboxshare.app → Site Settings → General → Domain 改为 sharedcodes.com。（2026-11-02 完成，历史保留；线上首页 data-domain 已是 sharedcodes.com）
     - [ ] GSC 添加 sharedcodes.com Domain 属性。
     - [x] `git push origin main`（提交 1）→ 验证 https://sharedcodes.com 与 https://www.sharedcodes.com 200。（2026-11-02 完成，四个域名证书齐全）
     - [x] 原地改名 Worker：Dashboard Settings → General，或 `PATCH /accounts/{id}/workers/workers/inboxshare` `{"name":"sharedcodes"}`；核对四个域名、ADMIN_TOKEN / WAITLIST_TO、cron、Builds 连接都在。（2026-11-02 站长在 Dashboard 完成，服务标签仍是 `cf:service=inboxshare`，域名、secret、部署历史都保留）
