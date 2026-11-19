@@ -54,14 +54,14 @@
     // 作者实例（Worker `sharedcodes`）：Workers Builds 的部署命令是 `pnpm run deploy:production`
     "production": {
       "name": "sharedcodes",
-      // sharedcodes.com 是正式入口。inboxshare.app 与 mail.funcin.de 是旧入口：页面请求由 src/index.ts
-      // 301 到 sharedcodes.com 同路径（已发出的旧链接继续可用），Email Routing 仍在这两个域名上收信，
-      // 用户转发规则里写的是这些域名下的地址，所以它们要无限期保留、不能过期
+      // sharedcodes.com 是正式入口。inboxshare.app 是旧入口：页面请求由 src/index.ts
+      // 301 到 sharedcodes.com 同路径（已发出的旧链接继续可用），Email Routing 仍在它上面收信，
+      // 用户转发规则里写的是该域名下的地址，所以它要无限期保留、不能过期。
+      // mail.funcin.de 网页入口 2026-11-19 退役（该子域无 MX，从不收信；funcin.de 根域的 Email Routing 不受影响）。
       "routes": [
         { "pattern": "sharedcodes.com", "custom_domain": true },
         { "pattern": "www.sharedcodes.com", "custom_domain": true },
-        { "pattern": "inboxshare.app", "custom_domain": true },
-        { "pattern": "mail.funcin.de", "custom_domain": true }
+        { "pattern": "inboxshare.app", "custom_domain": true }
       ],
       "d1_databases": [
         {

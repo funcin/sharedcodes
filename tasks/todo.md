@@ -122,3 +122,9 @@
   - 站长待办：
     - [x] Cloudflare `sharedcodes.com` zone → Email Routing 启用 → Routing rules → **Catch-all** → Send to a Worker → `sharedcodes`。（2026-11-02 站长完成；MX / SPF 从外部已核实，Catch-all 指向只能靠投递验证）
     - [x] 发一封测试信到任意 `test-1234@sharedcodes.com`，管理页「已收到邮件的邮箱」出现即通。（2026-11-02 站长实测：后台建地址 → 投递 → 分享页看到，符合预期；Catch-all → `sharedcodes` 由此确认）
+
+## 2026-11-19：退役 mail.funcin.de 网页入口
+
+- [x] 核实：`mail.funcin.de` 无 MX（funcin.de / inboxshare.app / sharedcodes.com 均有），25 端口不可连 → 该子域从未能收信；唯一作用是旧网页链接 301。
+- [x] `wrangler.jsonc` 去掉 `mail.funcin.de` route（部署时 wrangler 自动解绑 custom domain 与其 DNS）；CLAUDE.md / AGENTS.md 同步。`funcin.de` 根域 Email Routing（→ `sharedcodes`）与 `inboxshare.app` 不动。
+- 代价：10-27 至 11-02 期间发出的 `mail.funcin.de/s/<key>` 旧链接失效。

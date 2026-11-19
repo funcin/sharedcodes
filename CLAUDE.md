@@ -9,7 +9,7 @@ Worker 解析、识别验证码（`src/code.ts`）和「点开才拿到码」的
 管理流程是**先建后收**（2026-11-02 定）：管理页填一个用户名（7 到 64 位，`src/util.ts` 的 `isValidLocalPart`）就得到收件地址 `用户名@MAIL_DOMAIN` 和分享链接，再把地址给对方配转发；填含 `@` 的完整地址则原样使用（给旧域名邮箱建链接）。收信靠域名 Email Routing 的一条 **Catch-all → Send to a Worker**，Worker 不做收件白名单、不逐个建地址、不调 Cloudflare API。
 
 品牌名 **Shared Codes**（唯一源 `src/brand.ts`，只出现在显示层；2026-11-02 由 InboxShare 改名，开源版与托管版共用这一个名字）；GitHub 仓库 `funcin/sharedcodes`；正式域名 `sharedcodes.com`。
-旧入口 `inboxshare.app`、`mail.funcin.de`：页面请求由 `src/index.ts` 的中间件 301 到 `sharedcodes.com` 同路径，Email Routing 仍在它们上面收信——用户转发规则里写的是这两个域名下的地址，所以**两个旧域名无限期续费、Email Routing 永不关闭**。
+旧入口 `inboxshare.app`：页面请求由 `src/index.ts` 的中间件 301 到 `sharedcodes.com` 同路径，Email Routing 仍在它上面收信——用户转发规则里写的是该域名下的地址，所以**inboxshare.app 无限期续费、Email Routing 永不关闭**。`funcin.de` 根域的 Email Routing（规则指向 Worker `sharedcodes`）同样永不关闭。`mail.funcin.de` 网页入口已于 2026-11-19 退役（该子域没有 MX，从未能收信）。
 参考原型：dingyue.xzys.me 的「共享收件箱」（Renewlet 二开 + LanQin-Email）；同栈开源邻居：TooonyChen/AuthInbox。
 
 ## 红线（不做什么）
@@ -31,7 +31,7 @@ Worker 解析、识别验证码（`src/code.ts`）和「点开才拿到码」的
 - 业务数据：D1（表 `messages`、`share_links`，schema 在 `migrations/`，新字段只加迁移文件不改旧文件）。
 - 附件与超大正文：R2（键 `att/<msgId>/<n>`、`body/<msgId>.html`）。
 - 配置：`wrangler.jsonc` 唯一来源。**顶层是通用模板**（无资源 id、无路由，fork 即可用）；
-  `env.production` 是作者实例（Worker `sharedcodes`、D1 `shared-inbox`、域名 `sharedcodes.com` + `www` + 旧入口 `inboxshare.app`、`mail.funcin.de`；`PUBLIC_BASE_URL` 决定 canonical、分享链接和 301 的目标；`MAIL_DOMAIN` 是管理页新建链接时拼在用户名后的收件域名，留空则取 `PUBLIC_BASE_URL` 主机名）。
+  `env.production` 是作者实例（Worker `sharedcodes`、D1 `shared-inbox`、域名 `sharedcodes.com` + `www` + 旧入口 `inboxshare.app`（`mail.funcin.de` 2026-11-19 退役）；`PUBLIC_BASE_URL` 决定 canonical、分享链接和 301 的目标；`MAIL_DOMAIN` 是管理页新建链接时拼在用户名后的收件域名，留空则取 `PUBLIC_BASE_URL` 主机名）。
   作者实例的 Workers Builds 部署命令是 `pnpm run deploy:production`（先远程迁移再部署）。
 - 邮件最长保留 `RETENTION_DAYS`（默认 30），每天 03:17 UTC 的 cron 清理 D1 + R2。
 
