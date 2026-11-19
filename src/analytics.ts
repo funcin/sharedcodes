@@ -1,12 +1,12 @@
 import type { Env } from './types';
 
-// 首页统计：站长自托管的 Plausible（data.funcin.de，无 Cookie、不存标识，与 seenwell / alcyontech 同一实例）。
+// 首页统计：站长自托管的 Plausible（data.funcin.net，无 Cookie、不存标识，与 seenwell / alcyontech 同一实例）。
 // 只有首页（/、/en、/zh）打标：统计脚本会上报整条 URL，而 /s/<key> 的 URL 本身就是访问凭证，/admin 也不该外泄，
 // 这两类页面继续用 index.ts 的严格 CSP、不加载任何第三方资源。
 // 站点名来自 wrangler.jsonc 的 ANALYTICS_DOMAIN；留空（顶层模板、本地开发）= 不打标、首页也用严格 CSP。
 // 脚本带 outbound-links 扩展：首页的转化就是点去 GitHub / Deploy 的外链。
 
-const PLAUSIBLE = 'https://data.funcin.de';
+const PLAUSIBLE = 'https://data.funcin.net';
 const PLAUSIBLE_SCRIPT = `${PLAUSIBLE}/js/script.outbound-links.js`;
 
 /** 严格 CSP 之上某个页面额外放行的来源 */
